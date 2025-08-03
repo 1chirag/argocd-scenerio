@@ -33,10 +33,10 @@ pipeline {
         stage('Update Image Tag in Deployment File') {
             steps {
                 sh '''
-                    sed -i "s/{{TAG}}/$IMAGE_TAG/g" nodeapi-deployment.yaml
+                    sed -i '' "s/{{TAG}}/$IMAGE_TAG/g" nodeapi-deployment.yaml
                     '''
-                }
-        }   
+    }
+} 
         stage('Print Updated Deployment File') {
              steps {
                 sh 'cat nodeapi-deployment.yaml'
