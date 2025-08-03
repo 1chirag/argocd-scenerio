@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/1chirag/argocd-scenerio.git'
+                git branch: 'main', url: 'https://github.com/1chirag/argocd-scenerio.git'
             }
         }
 
