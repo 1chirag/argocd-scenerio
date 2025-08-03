@@ -3,13 +3,13 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'jainchirag/nodeapi'
-        DOCKER_CREDENTIALS_ID = 'docker-hub-creds'  // ID you gave while adding credentials in Jenkins
+        DOCKER_CREDENTIALS_ID = 'docker-hub-creds' // Jenkins credential ID for Docker Hub
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/1chirag/argocd-scenerio.git'
+                git branch: 'main', url: 'https://github.com/1chirag/argocd-scenerio.git'
             }
         }
 
