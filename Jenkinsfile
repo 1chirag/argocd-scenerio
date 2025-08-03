@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'jainchirag/nodeapi'
-        DOCKER_CREDENTIALS_ID = 'docker-hub-creds'  // Your Jenkins Docker Hub credentials ID
+        DOCKER_CREDENTIALS_ID = 'docker-hub-creds'  // Jenkins credentials ID for Docker Hub
+        IMAGE_TAG = "v${env.BUILD_NUMBER}"
     }
 
     stages {
@@ -15,22 +16,17 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    withEnv(["PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"]) {
-                        dockerImage = docker.build("${IMAGE_NAME}:v${env.BUILD_NUMBER}")
-                    }
-                }
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
 
-        stage('Push to Docker Hub') {
+        stage('Login to Docker Hub & Push Image') {
             steps {
-                script {
-                    withEnv(["PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"]) {
-                        docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
-                            dockerImage.push()
-                        }
-                    }
+                withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push $IMAGE_NAME:$IMAGE_TAG
+                    '''
                 }
             }
         }
