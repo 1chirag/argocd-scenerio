@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'jainchirag/nodeapi'
         DOCKER_CREDENTIALS_ID = 'docker-hub-creds'  // Jenkins credentials ID for Docker Hub
-        IMAGE_TAG = "v${env.BUILD_NUMBER}"
+        IMAGE_TAG = "v${BUILD_NUMBER}"
     }
 
     stages {
@@ -30,17 +30,29 @@ pipeline {
                 }
             }
         }
+
         stage('Update Image Tag in Deployment File') {
             steps {
                 sh '''
-                    sed -i '' "s/{{TAG}}/$IMAGE_TAG/g" nodeapi-deployment.yaml
-                    '''
-    }
-} 
+                    sed -i "s/{{TAG}}/$IMAGE_TAG/g" nodeapi-deployment.yaml
+                '''
+            }
+        }
+
         stage('Print Updated Deployment File') {
-             steps {
+            steps {
                 sh 'cat nodeapi-deployment.yaml'
-             }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                    echo "Deploying Deployment and Service to Kubernetes..."
+                    kubectl apply -f nodeapi-deployment.yaml
+                    kubectl apply -f nodeapi-service.yaml
+                '''
+            }
         }
     }
 }
