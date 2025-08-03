@@ -3,14 +3,35 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'jainchirag/nodeapi'
-        DOCKER_CREDENTIALS_ID = 'docker-hub-creds'  // Jenkins credentials ID for Docker Hub
-        IMAGE_TAG = "v${env.BUILD_NUMBER}"
+        DOCKER_CREDENTIALS_ID = 'docker-hub-creds'
     }
 
     stages {
         stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/1chirag/argocd-scenerio.git'
+            }
+        }
+
+        stage('Determine Image Tag') {
+            steps {
+                script {
+                    // Get latest numeric tag from Docker Hub
+                    def output = sh(
+                        script: '''
+                            curl -s https://registry.hub.docker.com/v1/repositories/jainchirag/nodeapi/tags \
+                            | grep -o '"name": *"v[0-9]\\+"' \
+                            | sed 's/.*"v\\([0-9]\\+\\)"/\\1/' \
+                            | sort -n \
+                            | tail -1
+                        ''',
+                        returnStdout: true
+                    ).trim()
+
+                    def lastVersion = output.isInteger() ? output.toInteger() : 0
+                    env.IMAGE_TAG = "v${lastVersion + 1}"
+                    echo "Using image tag: ${env.IMAGE_TAG}"
+                }
             }
         }
 
