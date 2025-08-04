@@ -62,7 +62,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'jainchirag/nodeapi'
-        DOCKER_CREDENTIALS_ID = 'docker-hub-creds'  // Jenkins credentials ID
+        DOCKER_CREDENTIALS_ID = 'docker-hub-creds'
         IMAGE_TAG = "v${BUILD_NUMBER}"
     }
 
@@ -90,30 +90,31 @@ pipeline {
             }
         }
 
-        stage('Update Image Tag in K8s Deployment File') {
+        stage('Update Image Tag in Helm values.yaml') {
             steps {
                 sh '''
-                    sed -i '' "s/{{TAG}}/$IMAGE_TAG/g" k8s/nodeapi-deployment.yaml
+                    sed -i '' "s|tag:.*|tag: \\"$IMAGE_TAG\\"|g" helm-nodeapi/values.yaml
                 '''
             }
         }
 
-        stage('Commit and Push Updated YAML to Git') {
+        stage('Commit and Push Updated Helm Values to Git') {
             steps {
                 sh '''
                     git config user.name "jenkins"
                     git config user.email "jenkins@localhost"
-                    git add k8s/nodeapi-deployment.yaml
-                    git commit -m "Update image to $IMAGE_TAG"
+                    git add helm-nodeapi/values.yaml
+                    git commit -m "Update image tag to $IMAGE_TAG"
                     git push origin main
                 '''
             }
         }
 
-        stage('Print Updated Deployment File') {
+        stage('Print Updated Helm values.yaml') {
             steps {
-                sh 'cat k8s/nodeapi-deployment.yaml'
+                sh 'cat helm-nodeapi/values.yaml'
             }
         }
     }
 }
+

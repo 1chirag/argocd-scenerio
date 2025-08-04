@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: nodeapi-service
+  name: {{ .Chart.Name }}-service
 spec:
-  type: NodePort
+  type: {{ .Values.service.type }}
   selector:
-    app: nodeapi
+    app: {{ .Chart.Name }}
   ports:
-    - port: 3000
-      targetPort: 3000
-      nodePort: 30080  # exposed on host
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      nodePort: {{ .Values.service.nodePort }}

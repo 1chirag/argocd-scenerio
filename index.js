@@ -3,7 +3,7 @@ const app = express();
 const PORT = 3000;
 
 app.get('/', (req, res) => {
-  res.send('Hi, Im a devops engineer. This is my 5th deployment using argocd.Goodmorning , have a great day ahead!!');
+  res.send('Hi, Im a devops engineer. Lets check argocd with helm chart values!');
 });
 
 app.listen(PORT, '0.0.0.0', () => {
