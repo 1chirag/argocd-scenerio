@@ -115,18 +115,5 @@ pipeline {
                 sh 'cat nodeapi-deployment.yaml'
             }
         }
-
-        // Optional if Argo CD auto syncs - this is a local deploy fallback
-        stage('Deploy to Kubernetes (Local/Manual only)') {
-            when {
-                expression { return params.MANUAL_DEPLOY == true } // Add a Jenkins param for this if needed
-            }
-            steps {
-                sh '''
-                    kubectl apply -f nodeapi-deployment.yaml
-                    kubectl apply -f nodeapi-service.yaml
-                '''
-            }
-        }
     }
 }
