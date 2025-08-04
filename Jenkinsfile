@@ -112,7 +112,7 @@ pipeline {
 
         stage('Print Updated Deployment File') {
             steps {
-                sh 'cat nodeapi-deployment.yaml'
+                sh 'cat k8s/nodeapi-deployment.yaml'
             }
         }
     }
