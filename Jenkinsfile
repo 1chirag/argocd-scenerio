@@ -136,6 +136,80 @@
 // }
 
 // version 3
+// pipeline {
+//     agent any
+
+//     environment {
+//         IMAGE_NAME = 'jainchirag/nodeapi'
+//         DOCKER_CREDENTIALS_ID = 'docker-hub-creds'
+//         IMAGE_TAG = "v${BUILD_NUMBER}"
+//         GIT_REPO = 'https://github.com/1chirag/argocd-scenerio.git'
+//     }
+
+//     stages {
+//         stage('Clone Main Branch for App Build') {
+//             steps {
+//                 git branch: 'main', url: "${GIT_REPO}"
+//             }
+//         }
+
+//         stage('Build Docker Image') {
+//             steps {
+//                 sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+//             }
+//         }
+
+//         stage('Login and Push to Docker Hub') {
+//             steps {
+//                 withCredentials([usernamePassword(credentialsId: "${DOCKER_CREDENTIALS_ID}", usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+//                     sh '''
+//                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+//                         docker push $IMAGE_NAME:$IMAGE_TAG
+//                     '''
+//                 }
+//             }
+//         }
+
+//         stage('Clone Deploy Branch for Helm Update') {
+//             steps {
+//                 sh '''
+//                     rm -rf helm-deploy
+//                     git clone --single-branch --branch deploy ${GIT_REPO} helm-deploy
+//                 '''
+//             }
+//         }
+
+//         stage('Update Image Tag in Helm values.yaml') {
+//             steps {
+//                 sh '''
+//                     sed -i '' "s|tag:.*|tag: \\"$IMAGE_TAG\\"|g" helm-deploy/helm-nodeapi/values.yaml
+//                 '''
+//             }
+//         }
+
+//         stage('Commit and Push Updated Helm Values to Deploy Branch') {
+//             steps {
+//                 dir('helm-deploy') {
+//                     sh '''
+//                         git config user.name "jenkins"
+//                         git config user.email "jenkins@localhost"
+//                         git add helm-nodeapi/values.yaml
+//                         git commit -m "Update image tag to $IMAGE_TAG"
+//                         git push origin deploy
+//                     '''
+//                 }
+//             }
+//         }
+
+//         stage('Print Updated Helm values.yaml') {
+//             steps {
+//                 sh 'cat helm-deploy/helm-nodeapi/values.yaml'
+//             }
+//         }
+//     }
+// }
+
+// version 4
 pipeline {
     agent any
 
@@ -143,13 +217,14 @@ pipeline {
         IMAGE_NAME = 'jainchirag/nodeapi'
         DOCKER_CREDENTIALS_ID = 'docker-hub-creds'
         IMAGE_TAG = "v${BUILD_NUMBER}"
-        GIT_REPO = 'https://github.com/1chirag/argocd-scenerio.git'
+        APP_REPO = 'https://github.com/1chirag/argocd-scenerio.git'
+        DEPLOY_REPO = 'https://github.com/1chirag/argodcd-helmdeploy.git'
     }
 
     stages {
         stage('Clone Main Branch for App Build') {
             steps {
-                git branch: 'main', url: "${GIT_REPO}"
+                git branch: 'main', url: "${APP_REPO}"
             }
         }
 
@@ -170,11 +245,11 @@ pipeline {
             }
         }
 
-        stage('Clone Deploy Branch for Helm Update') {
+        stage('Clone Deployment Repo for Helm Update') {
             steps {
                 sh '''
                     rm -rf helm-deploy
-                    git clone --single-branch --branch deploy ${GIT_REPO} helm-deploy
+                    git clone ${DEPLOY_REPO} helm-deploy
                 '''
             }
         }
@@ -187,7 +262,7 @@ pipeline {
             }
         }
 
-        stage('Commit and Push Updated Helm Values to Deploy Branch') {
+        stage('Commit and Push Updated Helm Values') {
             steps {
                 dir('helm-deploy') {
                     sh '''
@@ -195,7 +270,7 @@ pipeline {
                         git config user.email "jenkins@localhost"
                         git add helm-nodeapi/values.yaml
                         git commit -m "Update image tag to $IMAGE_TAG"
-                        git push origin deploy
+                        git push origin main
                     '''
                 }
             }
@@ -208,4 +283,3 @@ pipeline {
         }
     }
 }
-
