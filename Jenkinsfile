@@ -67,6 +67,19 @@ pipeline {
     }
 
     stages {
+        stage('Check Last Commit Message') {
+            steps {
+                script {
+                    def commitMessage = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
+                    if (commitMessage.startsWith("Update image tag to v")) {
+                        echo "Skipping build for auto-commit: ${commitMessage}"
+                        currentBuild.result = 'SUCCESS'
+                        // Stops the pipeline
+                        return
+                    }
+                }
+            }
+        }
         stage('Clone Repository') {
             steps {
                 git branch: 'main', url: 'https://github.com/1chirag/argocd-scenerio.git'
