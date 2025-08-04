@@ -93,7 +93,7 @@ pipeline {
         stage('Update Image Tag in K8s Deployment File') {
             steps {
                 sh '''
-                    sed -i 's|jainchirag/nodeapi:.*|jainchirag/nodeapi:'"$IMAGE_TAG"'|' nodeapi-deployment.yaml
+                    sed -i '' "s/{{TAG}}/$IMAGE_TAG/g" nodeapi-deployment.yaml
                 '''
             }
         }
