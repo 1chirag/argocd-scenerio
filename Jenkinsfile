@@ -103,7 +103,7 @@ pipeline {
                 sh '''
                     git config user.name "jenkins"
                     git config user.email "jenkins@localhost"
-                    git add nodeapi-deployment.yaml
+                    git add k8s/nodeapi-deployment.yaml
                     git commit -m "Update image to $IMAGE_TAG"
                     git push origin main
                 '''
