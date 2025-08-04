@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: jainchirag/nodeapi
-  tag: "v50"
+  tag: "v53"
   pullPolicy: IfNotPresent
 
 service:
