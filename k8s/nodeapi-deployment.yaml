@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: nodeapi
-          image: jainchirag/nodeapi:v36
+          image: jainchirag/nodeapi:{tag}
           ports:
             - containerPort: 3000
